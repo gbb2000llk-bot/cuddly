@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>料金計算アプリ</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#f3f4f6;color:#222;padding:16px}
+h1{text-align:center;font-size:24px;margin:6px 0 18px}.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #00000012}
+.section-title{font-size:22px;margin:0 0 12px}.row{display:grid;grid-template-columns:1fr 110px 110px;gap:10px;align-items:center;margin:8px 0}
+.label{font-weight:700}input{width:100%;font-size:20px;padding:10px;border:1px solid #ccc;border-radius:10px;text-align:right;background:#fff}
+.subtotal{font-size:18px;text-align:right;font-weight:700;white-space:nowrap}.section-total{font-size:22px;text-align:right;font-weight:800;margin-top:14px;padding-top:12px;border-top:1px solid #ddd}
+button{width:100%;border:0;border-radius:14px;padding:16px;font-size:22px;font-weight:700;background:#222;color:#fff;margin-top:8px}
+#grandTotal{font-size:30px;text-align:center;font-weight:800;padding:18px 8px}.reset{background:#777;font-size:16px;padding:12px}
+@media(max-width:520px){.row{grid-template-columns:1fr 82px 105px}.label{font-size:16px}input{font-size:18px;padding:9px}.subtotal{font-size:16px}}
+</style></head>
+<body>
+<h1>料金計算</h1><div id="app"></div>
+<button onclick="calcAll()">A・B・Cを計算</button>
+<div class="card" id="grandTotal">A ＋ B ＋ C ＝ 0円</div>
+<button class="reset" onclick="location.reload()">リセット</button>
+<script>
+const fees=[500,1000,1500,2000,2500,3000],groups=["A","B","C"];
+function createGroup(group){
+ let html='<div class="card"><h2 class="section-title">【 '+group+' 】</h2>';
+ fees.forEach((fee,i)=>{html+='<div class="row"><div class="label">'+fee.toLocaleString()+'円</div><input id="'+group+'-q'+i+'" type="number" min="0" inputmode="numeric" placeholder="個数"><div class="subtotal" id="'+group+'-s'+i+'">0円</div></div>'});
+ html+='<h3 style="font-size:19px;margin:16px 0 12px">自由入力</h3>';
+ for(let i=0;i<3;i++){html+='<div class="row"><input id="'+group+'-a'+i+'" type="number" min="0" inputmode="numeric" placeholder="金額"><input id="'+group+'-cq'+i+'" type="number" min="0" inputmode="numeric" placeholder="個数"><div class="subtotal" id="'+group+'-cs'+i+'">0円</div></div>'}
+ return html+'<div class="section-total" id="'+group+'-total">'+group+' 合計 0円</div></div>';
+}
+document.getElementById("app").innerHTML=groups.map(createGroup).join("");
+function n(id){return Number(document.getElementById(id).value)||0}
+function calcGroup(group){
+ let total=0;
+ fees.forEach((fee,i)=>{let v=fee*n(group+"-q"+i);document.getElementById(group+"-s"+i).textContent=v.toLocaleString()+"円";total+=v});
+ for(let i=0;i<3;i++){let v=n(group+"-a"+i)*n(group+"-cq"+i);document.getElementById(group+"-cs"+i).textContent=v.toLocaleString()+"円";total+=v}
+ document.getElementById(group+"-total").textContent=group+" 合計 "+total.toLocaleString()+"円";return total;
+}
+function calcAll(){let a=calcGroup("A"),b=calcGroup("B"),c=calcGroup("C");document.getElementById("grandTotal").textContent="A ＋ B ＋ C ＝ "+(a+b+c).toLocaleString()+"円"}
+</script></body></html>
